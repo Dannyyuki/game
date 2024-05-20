@@ -15,11 +15,12 @@ let score = 0;
 let gameInterval;
 let timerInterval;
 let moveDirection = null;
-let birdSpeed = 4;  // Initial speed
-let bulletSpeed = 20;  // Increased speed
+let birdSpeed = 4;
+let bulletSpeed = 20;
 let gameTime = 60;
 let moveInterval;
 let goalScore;
+let currentLevel = 1;
 
 function createBird() {
     let size = 50;
@@ -72,10 +73,6 @@ function update() {
         createBird();
     }
 
-    if (gameTime <= 0) {
-        endGame('Time is up! You failed to reach the goal.');
-    }
-
     checkGameOver();
 }
 
@@ -104,10 +101,10 @@ function checkCollision() {
                 score += 10;
                 scoreDisplay.textContent = score;
                 if (score % 20 === 0) {
-                    birdSpeed += 2;  // Increase bird speed every 20 points
+                    birdSpeed += 2;
                 }
                 if (score >= goalScore) {
-                    endGame('Congratulations! You reached the goal.');
+                    nextLevel();
                 }
             }
         });
@@ -133,6 +130,29 @@ function endGame(message) {
     alert(message + ' Final score: ' + score);
 }
 
+function nextLevel() {
+    alert('Congratulations! You reached the goal. Proceeding to the next level.');
+    currentLevel++;
+    score = 0;
+    gameTime = 60;
+    bullets = [];
+    birds = [];
+    birdSpeed = 4;
+    goalScore = generateGoalScore();
+    scoreDisplay.textContent = score;
+    timeDisplay.textContent = gameTime;
+    goalDisplay.textContent = goalScore;
+    clearInterval(gameInterval);
+    clearInterval(timerInterval);
+    gameInterval = setInterval(update, 30);
+    timerInterval = setInterval(updateTimer, 1000);
+    update();
+}
+
+function generateGoalScore() {
+    return Math.ceil((currentLevel * 100) / 10) * 10; // Ensuring the score is a multiple of 10
+}
+
 function startGame() {
     score = 0;
     gameTime = 60;
@@ -140,11 +160,12 @@ function startGame() {
     birds = [];
     moveDirection = null;
     birdSpeed = 4;
-    goalScore = Math.floor(Math.random() * (200 - 100 + 1)) + 100;
+    currentLevel = 1;
+    goalScore = generateGoalScore();
     scoreDisplay.textContent = score;
     timeDisplay.textContent = gameTime;
     goalDisplay.textContent = goalScore;
-    gameInterval = setInterval(update, 30);  // Increased update frequency
+    gameInterval = setInterval(update, 30);
     timerInterval = setInterval(updateTimer, 1000);
     update();
 }
@@ -153,9 +174,7 @@ function updateTimer() {
     gameTime--;
     timeDisplay.textContent = gameTime;
     if (gameTime <= 0) {
-        clearInterval(gameInterval);
-        clearInterval(timerInterval);
-        alert('遊戲結束！最終得分：' + score);
+        endGame('Time is up! You failed to reach the goal.');
     }
 }
 
